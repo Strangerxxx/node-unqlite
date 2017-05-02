@@ -38,4 +38,4 @@
     );
 
 
-#endif /* NODE_UNQLITE_MACRO_H */
+#endif /* UNQLITE_MACRO_H */

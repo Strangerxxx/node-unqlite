@@ -1,33 +1,30 @@
 {
-  'targets': [
+  "targets": [
     {
-      'target_name': 'node_unqlite',
-      'include_dirs': ['unqlite', "<!(node -e \"require('nan')\")"],
-      'sources': ['unqlite/unqlite.c', 'src/node_unqlite_async.cc', 'src/node_unqlite.cc'],
-      'cflags': ['-fexceptions'],
-      'cflags_cc': ['-fexceptions'],
-      'cflags!': ['-fno-exceptions'],
-      'cflags_cc!': ['-fno-exception'],
-      'conditions': [
+      "target_name": "<(module_name)",
+      "include_dirs": ["lib/unqlite", "<!(node -e \"require('nan')\")"],
+      "cflags": ["-fexceptions"],
+      "cflags_cc": ["-fexceptions"],
+      "cflags!": ["-fno-exceptions"],
+      "cflags_cc!": ["-fno-exception"],
+      "conditions": [
         ['OS=="mac"', {
-            'xcode_settings': {
-              'GCC_ENABLE_CPP_EXCEPTIONS': 'YES',
-              'GCC_ENABLE_CPP_RTTI': 'YES'
+            "xcode_settings": {
+              "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
+              "GCC_ENABLE_CPP_RTTI": "YES"
             }
           }
         ],
       ],
     },
     {
-      'target_name': 'action_after_build',
-      'type': 'none',
-      'dependencies': [ 'node_unqlite' ],
-      'copies': [
+    "target_name": "action_after_build",
+    "type": "none",
+    "dependencies": [ "<(module_name)" ],
+    "copies": [
         {
-          'destination': 'lib',
-          'files': [
-            '<@(PRODUCT_DIR)/node_unqlite.node'
-          ]
+            "files": [ "<(PRODUCT_DIR)/<(module_name).node" ],
+            "destination": "<(module_path)"
         }
       ]
     }

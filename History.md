@@ -1,5 +1,10 @@
 # Revision history for unqlite
 
+1.0.1 / 2017-05-02
+==================
+
+   * Update version of all
+
 0.3.4 / 2016-06-29
 ==================
 
@@ -49,7 +54,7 @@
 0.2.0 / 2014-05-05
 ==================
 
-  * [Incompatible change] Change constant var name.
+  * [Incompatible change] Change constant let name.
 
 0.1.2 / 2014-05-05
 ==================

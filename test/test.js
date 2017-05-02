@@ -1,180 +1,181 @@
-var unqlite = require('../lib/unqlite');
-var DB = unqlite.Database;
+import unqlite from '../unqlite';
+import assert from 'assert';
+import temp from 'temp';
+import path from 'path';
+import {describe, beforeEach, it,} from "mocha";
 
-var assert = require('assert');
+const DB = unqlite.Database;
 
-describe('open', function() {
-  var temp = require('temp');
-  var path = require('path');
+describe('open', () => {
 
-  var dbFile;
+    let dbFile;
 
-  beforeEach(function(cb) {
-    temp.mkdir(null, function(err, tempPath) {
-      if (err) {
-        cb(err);
-      }
-      dbFile = path.join(tempPath, 'test_open.db');
-      cb();
-    });
-  });
-
-  it('default', function(done) {
-    var uql = new DB(dbFile);
-    uql.open(function(err) {
-      assert.equal(err, null);
-      done();
-    });
-  });
-
-  describe('mode', function() {
-    it('with READONLY', function(done) {
-      var uql = new DB(dbFile);
-      uql.open(unqlite.OPEN_READONLY, function() {
-        assert.equal(uql.mode, unqlite.OPEN_READONLY);
-        done();
-      });
+    beforeEach(function(cb) {
+        temp.mkdir(null, function(err, tempPath) {
+            if (err) {
+                cb(err);
+            }
+            dbFile = path.join(tempPath, 'test_open.db');
+            cb();
+        });
     });
 
-    it('with READWRITE', function(done) {
-      var uql = new DB(dbFile);
-      uql.open(unqlite.OPEN_READWRITE, function() {
-        assert.equal(uql.mode, unqlite.OPEN_READWRITE);
-        done();
-      });
+    it('default', done => {
+        let uql = new DB(dbFile);
+        uql.open(err =>{
+            assert.equal(err, null);
+            done();
+        });
     });
 
-    it('with MMAP', function(done) {
-      var uql = new DB(dbFile);
-      uql.open(unqlite.OPEN_MMAP, function() {
-        assert.equal(uql.mode, unqlite.OPEN_MMAP);
-        done();
-      });
+    describe('mode', () => {
+        it('with READONLY', done =>{
+            let uql = new DB(dbFile);
+            uql.open(unqlite.OPEN_READONLY, () =>{
+                assert.equal(uql.mode, unqlite.OPEN_READONLY);
+                done();
+            });
+        });
+
+        it('with READWRITE', done =>{
+            let uql = new DB(dbFile);
+            uql.open(unqlite.OPEN_READWRITE, () => {
+                assert.equal(uql.mode, unqlite.OPEN_READWRITE);
+                done();
+            });
+        });
+
+        it('with MMAP', done =>{
+            let uql = new DB(dbFile);
+            uql.open(unqlite.OPEN_MMAP, () => {
+                assert.equal(uql.mode, unqlite.OPEN_MMAP);
+                done();
+            });
+        });
+
+        it('with IN_MEMORY', done =>{
+            let uql = new DB(dbFile);
+            uql.open(unqlite.OPEN_IN_MEMORY, () => {
+                assert.equal(uql.mode, unqlite.OPEN_IN_MEMORY);
+                done();
+            });
+        });
     });
 
-    it('with IN_MEMORY', function(done) {
-      var uql = new DB(dbFile);
-      uql.open(unqlite.OPEN_IN_MEMORY, function() {
-        assert.equal(uql.mode, unqlite.OPEN_IN_MEMORY);
-        done();
-      });
+    it('close', done =>{
+        let uql = new DB(dbFile);
+        uql.open(() => {
+            uql.close(function(err) {
+                assert.equal(err, null);
+                done();
+            });
+        });
     });
-  });
-
-  it('close', function(done) {
-    var uql = new DB(dbFile);
-    uql.open(function() {
-      uql.close(function(err) {
-        assert.equal(err, null);
-        done();
-      });
-    });
-  });
 });
 
-describe('Key/Value API', function() {
-  it('store API', function(done) {
-    var uql = new DB('test/test.db');
-    uql.open(unqlite.OPEN_IN_MEMORY, function() {
-      uql.store('foo', 'bar', function(err, key, value) {
-        assert.equal(key, 'foo');
-        assert.equal(value, 'bar');
-        done();
-      });
-    });
-  });
-
-  it('fetch API', function(done) {
-    var uql = new DB('test/test.db');
-    uql.open(unqlite.OPEN_IN_MEMORY, function() {
-      uql.store('foo', 'bar', function(err, key, value) {
-        uql.fetch(key, function(err, key, value) {
-          assert.equal(value, 'bar');
-          done();
+describe('Key/Value API', () => {
+    it('store API', done => {
+        let uql = new DB('test/test.db');
+        uql.open(unqlite.OPEN_IN_MEMORY, () => {
+            uql.store('foo', 'bar', function(err, key, value) {
+                assert.equal(key, 'foo');
+                assert.equal(value, 'bar');
+                done();
+            });
         });
-      });
     });
-  });
 
-  it('append API', function(done) {
-    var uql = new DB('test/test.db');
-    uql.open(unqlite.OPEN_IN_MEMORY, function() {
-      uql.store('foo', 'bar', function() {
-        uql.append('foo', 'baz', function(err, key, value) {
-          uql.fetch(key, function(err, key, value) {
-            assert.equal(value, 'barbaz');
-            done();
-          });
+    it('fetch API', done =>{
+        let uql = new DB('test/test.db');
+        uql.open(unqlite.OPEN_IN_MEMORY, () => {
+            uql.store('foo', 'bar', function(err, key, value) {
+                uql.fetch(key, function(err, key, value) {
+                    assert.equal(value, 'bar');
+                    done();
+                });
+            });
         });
-      });
     });
-  });
 
-  it('delete API', function(done) {
-    var uql = new DB('test/test.db');
-    uql.open(unqlite.OPEN_IN_MEMORY, function() {
-      uql.store('foo', 'bar', function(err, key, value) {
-        uql.
-        delete ('foo',
-        function(err, key) {
-          uql.fetch(key, function(err, key, value) {
-            assert.notEqual(err, null);
-            assert.ok(err.message.match(/^Failed to fetch/));
-            done();
-          });
+    it('append API', done => {
+        let uql = new DB('test/test.db');
+        uql.open(unqlite.OPEN_IN_MEMORY, () => {
+            uql.store('foo', 'bar', () => {
+                uql.append('foo', 'baz', function(err, key, value) {
+                    uql.fetch(key, function(err, key, value) {
+                        assert.equal(value, 'barbaz');
+                        done();
+                    });
+                });
+            });
         });
-      });
     });
-  });
+
+    it('delete API', done => {
+        let uql = new DB('test/test.db');
+        uql.open(unqlite.OPEN_IN_MEMORY, () => {
+            uql.store('foo', 'bar', function(err, key, value) {
+                uql.
+                delete ('foo',
+                    function(err, key) {
+                        uql.fetch(key, function(err, key, value) {
+                            assert.notEqual(err, null);
+                            assert.ok(err.message.match(/^Failed to fetch/));
+                            done();
+                        });
+                    });
+            });
+        });
+    });
 });
 
-describe('exceptions', function() {
-  describe('new', function() {
-    it('argument missing', function(done) {
-      try {
-        var uql = new DB();
-        assert.fail();
-      } catch(e) {
-        assert.ok( e instanceof RangeError);
-        assert.ok(e.message.match(/A least 1 arguments are required/));
-        done();
-      }
+describe('exceptions', () => {
+    describe('new', () => {
+        it('argument missing', done => {
+            try {
+                let uql = new DB();
+                assert.fail();
+            } catch(e) {
+                assert.ok( e instanceof RangeError);
+                assert.ok(e.message.match(/A least 1 arguments are required/));
+                done();
+            }
+        });
+        it('argument is not string', done => {
+            try {
+                let uql = new DB(1);
+                assert.fail();
+            } catch(e) {
+                assert.ok( e instanceof TypeError);
+                assert.ok(e.message.match(/Argument 1 must be a String/));
+                done();
+            }
+        });
     });
-    it('argument is not string', function(done) {
-      try {
-        var uql = new DB(1);
-        assert.fail();
-      } catch(e) {
-        assert.ok( e instanceof TypeError);
-        assert.ok(e.message.match(/Argument 1 must be a String/));
-        done();
-      }
+    describe('open', () => {
+        it('callback missing', done => {
+            try {
+                let uql = new DB('');
+                uql.open();
+                assert.fail('Must be fail');
+            } catch(e) {
+                assert.ok( e instanceof RangeError);
+                assert.ok(e.message.match(/A least 1 arguments are required/));
+                done();
+            };
+        });
+
+        it('callback is not function', done => {
+            try {
+                let uql = new DB('');
+                uql.open(0, 0);
+                assert.fail('Must be fail');
+            } catch(e) {
+                assert.ok( e instanceof TypeError);
+                assert.ok(e.message.match(/Argument 2 must be a Function/));
+                done();
+            }
+        });
+
     });
-  });
-  describe('open', function() {
-    it('callback missing', function(done) {
-      try {
-        var uql = new DB('');
-        uql.open();
-        assert.fail('Must be fail');
-      } catch(e) {
-        assert.ok( e instanceof RangeError);
-        assert.ok(e.message.match(/A least 1 arguments are required/));
-        done();
-      };
-    });
-    
-    it('callback is not function', function(done) {
-      try {
-        var uql = new DB('');
-        uql.open(0, 0);
-        assert.fail('Must be fail');
-      } catch(e) {
-        assert.ok( e instanceof TypeError);
-        assert.ok(e.message.match(/Argument 2 must be a Function/));
-        done();
-      };
-    });
-    
-  });
 });

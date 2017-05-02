@@ -1,6 +1,8 @@
 .project
 .settings
 .lock-wscript
-build
-lib/node_unqlite.node
-node_modules
+build/
+node_modules/
+.idea/
+lib/unqlite/
+lib/
